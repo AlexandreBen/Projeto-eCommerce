@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Pro | Portefólio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #8750f7; --bg: #f4f4f9; --text: #333; }
+        
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        .main-content { flex: 1; }
+        
+        .container { max-width: 1200px; margin: auto; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        /* Grid (3 por linha) */
+        .grid { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); padding-top: 20px; }
+        @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } #cart-drawer { width: 100%; right: -100%; } }
+
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        
+        /* Drawer do Carrinho / Login / Checkout */
+        #cart-drawer { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: 0.4s ease; padding: 20px; z-index: 1000; overflow-y: auto; box-sizing: border-box; }
+        #cart-drawer.open { right: 0; }
+
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .btn-trash { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .btn-trash:hover { background: #ff2a3f; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px; cursor: pointer; border-radius: 6px; width: 100%; margin-top: 10px; font-weight: 600; transition: 0.3s; }
+        .btn:hover { opacity: 0.9; }
+        
+        /* Formulários */
+        input { width: 100%; padding: 12px; margin: 6px 0 12px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; }
+        input:disabled { background-color: #f9f9f9; color: #777; cursor: not-allowed; }
+        .input-group { display: flex; gap: 10px; }
+        .hidden { display: none; }
+
+        /* Rodapé */
+        footer { background: white; padding: 40px 20px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); margin-top: 40px; }
+        .footer-content { max-width: 1200px; margin: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .footer-section h3 { color: var(--primary); margin-bottom: 15px; }
+        .footer-section p { margin: 8px 0; color: #555; font-size: 0.95rem; }
+        .footer-section a { color: #555; text-decoration: none; display: block; margin: 8px 0; transition: color 0.3s; font-size: 0.95rem; }
+        .footer-section a:hover { color: var(--primary); }
+        .footer-bottom { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #777; font-size: 0.9rem; }
+        .footer-bottom a { color: var(--primary); font-weight: bold; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; width: 100%; padding: 0;">
+            <h1 style="margin: 0;">Loja<span style="color: var(--primary);">Tech</span></h1>
+            <button onclick="toggleCart()" class="btn" style="width: auto; margin: 0;">Carrinho (<span id="cart-count">0</span>)</button>
+        </div>
+    </header>
+
+    <div class="container main-content">
+        <div id="products" class="grid"></div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Loja Tech</h3>
+                <p>Os melhores eletrónicos e inovações do mercado, com envio para todo o país.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Contactos</h3>
+                <p>📧 contacto@lojatech.pt</p>
+                <p>📱 +351 912 345 678</p>
+                <p>📍 Lisboa, Portugal</p>
+            </div>
+            <div class="footer-section">
+                <h3>Redes Sociais</h3>
+                <a href="#">📷 Instagram</a>
+                <a href="#">📘 Facebook</a>
+                <a href="#">💼 LinkedIn</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Loja Tech. Todos os direitos reservados.<br>
+            Desenvolvido com 💜 por <a href="#" target="_blank">Alexandre Benjamin</a>
+        </div>
+    </footer>
+
+    <div id="cart-drawer">
+        
+        <div id="cart-view">
+            <h3>O seu Carrinho</h3>
+            <div id="cart-items"></div>
+            <p style="font-size: 1.2rem; margin-top: 20px;"><strong>Total: € <span id="total">0.00</span></strong></p>
+            <button onclick="checkAuthAndProceed()" class="btn">Continuar para Pagamento</button>
+            <button onclick="toggleCart()" class="btn" style="background: #eee; color: #333;">Fechar</button>
+        </div>
+
+        <div id="login-view" class="hidden">
+            <h3>Iniciar Sessão</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px;">Para finalizar a compra, por favor inicie sessão. Pode usar dados fictícios para teste.</p>
+            
+            <label style="font-size: 0.9rem; font-weight: 600;">E-mail</label>
+            <input type="email" id="login-email" placeholder="exemplo@email.com">
+            
+            <label style="font-size: 0.9rem; font-weight: 600;">Palavra-passe</label>
+            <input type="password" id="login-password" placeholder="******">
+            
+            <span id="login-error" style="color: red; font-size: 0.8rem; display: none;">Preencha o e-mail e a palavra-passe!</span>
+
+            <button onclick="processLogin()" class="btn" style="margin-top: 20px;">Entrar</button>
+            <button onclick="showCart()" class="btn" style="background: #eee; color: #333;">Voltar ao Carrinho</button>
+        </div>
+
+        <div id="checkout-view" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>Detalhes da Entrega</h3>
+                <button onclick="logout()" style="background: none; border: none; color: #ff4757; text-decoration: underline; cursor: pointer; font-size: 0.8rem;">Terminar sessão</button>
+            </div>
+            
+            <label for="cep" style="font-size: 0.9rem; font-weight: 600;">Código Postal (CEP)</label>
+            <input type="text" id="cep" placeholder="Ex: 01001-000" maxlength="9" onblur="buscarCEP()">
+            <span id="cep-error" style="color: red; font-size: 0.8rem; display: none;">Código Postal não encontrado ou inválido.</span>
+            
+            <label style="font-size: 0.9rem; font-weight: 600;">Endereço Completo</label>
+            <input type="text" id="rua" placeholder="Rua / Avenida" disabled>
+            
+            <div class="input-group">
+                <input type="text" id="numero" placeholder="Número" style="flex: 1;">
+                <input type="text" id="complemento" placeholder="Complemento" style="flex: 2;">
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="bairro" placeholder="Bairro" disabled style="flex: 1;">
+                <input type="text" id="cidade" placeholder="Cidade" disabled style="flex: 1;">
+                <input type="text" id="uf" placeholder="UF" disabled style="width: 60px;">
+            </div>
+
+            <p id="frete-result" style="font-size: 0.95rem; color: var(--primary); font-weight: 600; margin: 10px 0;"></p>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            
+            <label style="font-size: 0.9rem; font-weight: 600;">Os seus Dados</label>
+            <input type="text" placeholder="Nome Completo" id="nome-comprador">
+            
+            <button onclick="processPayment()" class="btn">Confirmar Compra</button>
+            <button onclick="showCart()" class="btn" style="background: #eee; color: #333;">Voltar ao Carrinho</button>
+        </div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // 1. BUSCAR PRODUTOS
+        async function fetchProducts() {
+            try {
+                const res = await fetch('https://fakestoreapi.com/products?limit=12');
+                const data = await res.json();
+                const productGrid = document.getElementById('products');
+                productGrid.innerHTML = data.map(p => `
+                    <div class="card">
+                        <img src="${p.image}" style="width:100%; height:150px; object-fit:contain; margin-bottom:15px;">
+                        <div>
+                            <h4 style="margin: 0 0 10px 0; font-size: 1rem;">${p.title.substring(0, 20)}...</h4>
+                            <p style="margin: 0 0 15px 0; font-weight: bold; color: var(--primary); font-size: 1.2rem;">€ ${p.price}</p>
+                        </div>
+                        <button class="btn" style="margin:0;" onclick="addToCart({id:${p.id}, title:'${p.title.replace(/'/g, "\\'")}', price:${p.price}})">Adicionar</button>
+                    </div>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        // 2. BUSCAR CEP / CÓDIGO POSTAL
+        async function buscarCEP() {
+            let cepInput = document.getElementById('cep').value;
+            const cep = cepInput.replace(/\D/g, ''); 
+
+            const errorMsg = document.getElementById('cep-error');
+            const freteResult = document.getElementById('frete-result');
+
+            document.getElementById('rua').value = '';
+            document.getElementById('bairro').value = '';
+            document.getElementById('cidade').value = '';
+            document.getElementById('uf').value = '';
+            errorMsg.style.display = 'none';
+            freteResult.innerText = '';
+
+            if (cep.length !== 8) {
+                if (cep.length > 0) errorMsg.style.display = 'block';
+                return;
+            }
+
+            try {
+                document.getElementById('rua').value = 'A procurar endereço...';
+                const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await res.json();
+
+                if (data.erro) {
+                    errorMsg.style.display = 'block';
+                    document.getElementById('rua').value = '';
+                } else {
+                    document.getElementById('rua').value = data.logradouro;
+                    document.getElementById('bairro').value = data.bairro;
+                    document.getElementById('cidade').value = data.localidade;
+                    document.getElementById('uf').value = data.uf;
+
+                    const valorFrete = (Math.random() * 15 + 10).toFixed(2);
+                    freteResult.innerText = `Portes para ${data.localidade}: € ${valorFrete}`;
+                    document.getElementById('numero').focus();
+                }
+            } catch (e) {
+                errorMsg.style.display = 'block';
+                document.getElementById('rua').value = '';
+            }
+        }
+
+        // 3. LÓGICA DO CARRINHO
+        function addToCart(product) {
+            cart.push(product);
+            saveAndRefresh();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveAndRefresh();
+        }
+
+        function saveAndRefresh() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const container = document.getElementById('cart-items');
+            
+            if(cart.length === 0) {
+                container.innerHTML = '<p style="color: #777;">O seu carrinho está vazio.</p>';
+            } else {
+                container.innerHTML = cart.map((item, index) => `
+                    <div class="cart-item">
+                        <span>${item.title.substring(0,15)}... - <strong>€ ${item.price}</strong></span>
+                        <button class="btn-trash" onclick="removeFromCart(${index})"><i class="fa-solid fa-trash"></i> 🗑️</button>
+                    </div>`).join('');
+            }
+            
+            document.getElementById('total').innerText = cart.reduce((acc, item) => acc + item.price, 0).toFixed(2);
+        }
+
+        // 4. AUTENTICAÇÃO E FLUXO DE VISTAS (VIEWS)
+        function toggleCart() { document.getElementById('cart-drawer').classList.toggle('open'); }
+        
+        function showCart() { 
+            hideAllViews();
+            document.getElementById('cart-view').classList.remove('hidden'); 
+        }
+
+        function hideAllViews() {
+            document.getElementById('cart-view').classList.add('hidden');
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('checkout-view').classList.add('hidden');
+        }
+
+        // Verifica se tem sessão iniciada ao clicar em "Continuar para Pagamento"
+        function checkAuthAndProceed() {
+            if(cart.length === 0) return alert("Adicione produtos ao carrinho primeiro!");
+            
+            // Verifica o estado da sessão no sessionStorage do navegador
+            const isLoggedIn = sessionStorage.getItem('lojaTech_isLoggedIn');
+            
+            hideAllViews();
+            if(isLoggedIn === 'true') {
+                document.getElementById('checkout-view').classList.remove('hidden');
+            } else {
+                document.getElementById('login-view').classList.remove('hidden');
+            }
+        }
+
+        function processLogin() {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            if(email === '' || pass === '') {
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Simula o login e guarda no navegador
+            errorMsg.style.display = 'none';
+            sessionStorage.setItem('lojaTech_isLoggedIn', 'true');
+            
+            // Avança para o pagamento
+            hideAllViews();
+            document.getElementById('checkout-view').classList.remove('hidden');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('lojaTech_isLoggedIn');
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+            showCart(); // Volta ao carrinho
+        }
+        
+        // 5. FINALIZAR COMPRA
+        function processPayment() {
+            const nome = document.getElementById('nome-comprador').value;
+            const rua = document.getElementById('rua').value;
+            const numero = document.getElementById('numero').value;
+
+            if(!nome || !rua || !numero) {
+                return alert("Por favor, preencha o Código Postal, o Número e o seu Nome Completo.");
+            }
+
+            alert(`Parabéns, ${nome}!\nA sua compra foi finalizada com sucesso e será entregue em: ${rua}, ${numero}.`);
+            
+            cart = []; 
+            saveAndRefresh(); 
+            toggleCart(); 
+            showCart();
+            
+            document.getElementById('cep').value = '';
+            document.getElementById('rua').value = '';
+            document.getElementById('numero').value = '';
+            document.getElementById('complemento').value = '';
+            document.getElementById('bairro').value = '';
+            document.getElementById('cidade').value = '';
+            document.getElementById('uf').value = '';
+            document.getElementById('nome-comprador').value = '';
+            document.getElementById('frete-result').innerText = '';
+        }
+
+        fetchProducts();
+        updateCartUI();
+    </script>
+</body>
+</html>
